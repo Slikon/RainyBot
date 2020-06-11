@@ -1,6 +1,8 @@
 const Telegraf = require("telegraf");
 const axios = require("axios");
 
+process.env.bot_token = "1077764763:AAHTDfUhv_Mk5JJ1gwgAoYqyR0uWugoYPbw"
+
 const bot = new Telegraf(process.env.bot_token)
 
 bot.start((ctx) => {
