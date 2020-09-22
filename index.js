@@ -1,27 +1,54 @@
-const Telegraf = require("telegraf");
-const axios = require("axios");
+const Telegraf = require('telegraf');
+const axios = require('axios');
 
-process.env.bot_token = "1077764763:AAHTDfUhv_Mk5JJ1gwgAoYqyR0uWugoYPbw"
+const dotenv = require('dotenv');
+dotenv.config();
 
-const bot = new Telegraf(process.env.bot_token)
+const session = require('telegraf/session');
+const Stage = require('telegraf/stage');
+const WizardScene = require('telegraf/scenes/wizard');
+
+const bot = new Telegraf(process.env.bot_token);
 
 bot.start((ctx) => {
-  ctx.reply("Bot started!\nType /help to see what I can!");
+  ctx.reply('Bot started!\nType /help to see what I can!');
 });
-
-let currentLocation;
 
 bot.help((ctx) => {
   ctx.reply(`Here is the list of commands you can use: 
 /help
 /location
 /time
-/getWeather`)
-})
+/getWeather`);
+});
 
-bot.command('location', (ctx) => {
-  ctx.reply('Type your location below!')
-})
+let globalLocation;
 
+const location = new WizardScene(
+  'location',
+  (ctx) => {
+    ctx.reply('Enter your current location');
+    return ctx.wizard.next();
+  },
+  (ctx) => {
+    if (ctx.message.text.length < 2) {
+      ctx.reply('Enter correct location');
+      return;
+    }
+    globalLocation = ctx.message.text;
 
-bot.launch()
+    //console.log(globalLocation)
+    ctx.reply(`Your current location is ${globalLocation}`);
+    return ctx.scene.leave();
+  }
+);
+
+const stage = new Stage();
+
+stage.register(location);
+
+bot.use(session());
+bot.use(stage.middleware());
+bot.command('location', (ctx) => ctx.scene.enter('location'));
+
+bot.launch();
