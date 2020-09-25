@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "start": "nodemon src/app.js"
-  },
+  "scripts": {},
   "keywords": [],
   "author": "",
   "license": "ISC",

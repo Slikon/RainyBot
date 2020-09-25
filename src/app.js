@@ -69,7 +69,8 @@ const location = new WizardScene(
 
 stepHandler.action('correct_location', async (ctx) => {
   await ctx.deleteMessage();
-  ctx.reply('OK! Your current location is ' + globalLocation + ' now.');
+  await ctx.reply('OK! Your current location is ' + globalLocation + ' now.');
+  ctx.reply(`Latitude: ${latLocation};\nLongtitude: ${longLocation}`);
   return ctx.scene.leave();
 });
 
@@ -81,7 +82,6 @@ stepHandler.action('false_location', async (ctx) => {
 
 //confirmation of current user location
 const confirmLocation = async (location, ctx) => {
-  //let urlU = `https://eu1.locationiq.com/v1/search.php?key=${process.env.location_key}&q=${location}&format=json`;
   let url = encodeURI(
     `https://eu1.locationiq.com/v1/search.php?key=${process.env.location_key}&q=${location}&format=json`
   );
@@ -89,6 +89,8 @@ const confirmLocation = async (location, ctx) => {
   try {
     let res = await axios.get(url);
     let address = await res.data[0].display_name;
+    latLocation = await res.data[0].lat;
+    longLocation = await res.data[0].lon;
     //console.log(address);
     return address;
   } catch (err) {
