@@ -2,6 +2,7 @@ const dotenv = require('dotenv').config();
 
 const Telegraf = require('telegraf');
 const axios = require('axios');
+const mongoose = require('mongoose');
 
 const session = require('telegraf/session');
 const Stage = require('telegraf/stage');
@@ -11,9 +12,23 @@ const Composer = require('telegraf/composer');
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-let globalLocation;
-let longLocation;
-let latLocation;
+const databaseUrl = process.env.MONGO_URL;
+
+const connect = mongoose.connect(databaseUrl, {
+  useNewUrlParser: true,
+});
+
+connect
+  .then((db) => {
+    console.log('Connected succesfully to the server!');
+  })
+  .catch((err) => {
+    console.log(err);
+  });
+
+let globalLocation; //location typed in by user and used as a 'display location for him'
+let longLocation; //longtitude of user' location
+let latLocation; //latitude of user' location   ** long and lat are used for weather API
 
 bot.start((ctx) => {
   ctx.reply('Bot started!\nType /help to see what I can!');
@@ -80,18 +95,20 @@ stepHandler.action('false_location', async (ctx) => {
   return ctx.scene.reenter();
 });
 
+stepHandler.use((ctx) => ctx.replyWithMarkdown('Make your choice, please'));
+
 //confirmation of current user location
 const confirmLocation = async (location, ctx) => {
   let url = encodeURI(
     `https://eu1.locationiq.com/v1/search.php?key=${process.env.location_key}&q=${location}&format=json`
   );
-  console.log(url);
   try {
     let res = await axios.get(url);
     let address = await res.data[0].display_name;
+
     latLocation = await res.data[0].lat;
     longLocation = await res.data[0].lon;
-    //console.log(address);
+
     return address;
   } catch (err) {
     console.log(err.response.data);
