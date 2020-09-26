@@ -9,15 +9,16 @@ const Stage = require('telegraf/stage');
 const WizardScene = require('telegraf/scenes/wizard');
 const Markup = require('telegraf/markup');
 const Composer = require('telegraf/composer');
-
 const bot = new Telegraf(process.env.BOT_TOKEN);
-
 const databaseUrl = process.env.MONGO_URL;
+const User = require('./models/user');
 
 const connect = mongoose.connect(databaseUrl, {
   useNewUrlParser: true,
+  useUnifiedTopology: true,
 });
 
+// connection to MongoDB
 connect
   .then((db) => {
     console.log('Connected succesfully to the server!');
@@ -84,8 +85,36 @@ const location = new WizardScene(
 
 stepHandler.action('correct_location', async (ctx) => {
   await ctx.deleteMessage();
+
+  User.findOne({ id: ctx.from.id })
+    .then(
+      (user) => {
+        if (!user) {
+          User.create({
+            id: ctx.from.id,
+            location: globalLocation,
+            longtitudeLocation: longLocation,
+            latitudeLocation: latLocation,
+          });
+        }
+        user.updateOne({
+          location: globalLocation,
+          longtitudeLocation: longLocation,
+          latitudeLocation: latLocation,
+        });
+      },
+
+      (err) => {
+        throw err;
+      }
+    )
+    .catch((err) => {
+      console.log(err);
+    });
+
   await ctx.reply('OK! Your current location is ' + globalLocation + ' now.');
   ctx.reply(`Latitude: ${latLocation};\nLongtitude: ${longLocation}`);
+  ctx.reply('Your id is ' + ctx.from.id);
   return ctx.scene.leave();
 });
 
