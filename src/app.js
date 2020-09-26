@@ -37,7 +37,11 @@ bot.use(async (ctx, next) => {
       id: ctx.from.id,
     });
   }
+
+  ctx.state = user;
   console.log(ctx.state.id);
+
+  next(ctx);
 });
 
 let globalLocation; //location typed in by user and used as a 'display location for him'
@@ -52,8 +56,6 @@ bot.help((ctx) => {
   ctx.reply(`Here is a list of commands
     /location
     /check `);
-
-  console.log(ctx.state.id);
 });
 
 bot.command('check', (ctx) => {
