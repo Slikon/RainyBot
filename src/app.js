@@ -27,6 +27,19 @@ connect
     console.log(err);
   });
 
+bot.use(async (ctx, next) => {
+  // ищем юзера
+  let user = await User.findOne({ id: ctx.from.id });
+
+  // если нет - создаем
+  if (!user) {
+    user = await User.create({
+      id: ctx.from.id,
+    });
+  }
+  console.log(ctx.state.id);
+});
+
 let globalLocation; //location typed in by user and used as a 'display location for him'
 let longLocation; //longtitude of user' location
 let latLocation; //latitude of user' location   ** long and lat are used for weather API
@@ -39,6 +52,8 @@ bot.help((ctx) => {
   ctx.reply(`Here is a list of commands
     /location
     /check `);
+
+  console.log(ctx.state.id);
 });
 
 bot.command('check', (ctx) => {
