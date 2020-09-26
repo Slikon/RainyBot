@@ -17,6 +17,9 @@ const User = new Schema({
   timeToSendMessage: {
     type: String,
   },
+  confirm: {
+    type: Object,
+  },
 });
 
 module.exports = mongoose.model('User', User);

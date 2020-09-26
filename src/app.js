@@ -38,15 +38,14 @@ bot.use(async (ctx, next) => {
     });
   }
 
-  ctx.state = user;
-  console.log(ctx.state.id);
-
-  next(ctx);
+  //console.log(user);
+  ctx.dbuser = user;
+  next();
 });
 
-let globalLocation; //location typed in by user and used as a 'display location for him'
-let longLocation; //longtitude of user' location
-let latLocation; //latitude of user' location   ** long and lat are used for weather API
+// let globalLocation; //location typed in by user and used as a 'display location for him'
+// let longLocation; //longtitude of user' location
+// let latLocation; //latitude of user' location   ** long and lat are used for weather API
 
 bot.start((ctx) => {
   ctx.reply('Bot started!\nType /help to see what I can!');
@@ -59,10 +58,10 @@ bot.help((ctx) => {
 });
 
 bot.command('check', (ctx) => {
-  if (!globalLocation || typeof globalLocation == undefined) {
+  if (!ctx.dbuser.location || typeof ctx.dbuser.location == undefined) {
     ctx.reply('Вы не указали город');
   } else {
-    ctx.reply(`Ваш город - ${globalLocation}`);
+    ctx.reply(`Ваш город - ${ctx.dbuser.location}`);
   }
 });
 
@@ -79,10 +78,19 @@ const location = new WizardScene(
       ctx.reply('Enter **correct** location');
       return;
     }
-    globalLocation = ctx.message.text;
+    //ctx.dbuser.location = ctx.message.text;
 
-    let displayLocation = await confirmLocation(globalLocation, ctx);
-    console.log();
+    //adding not confirmed (yet) location to 'cofirm' field
+    ctx.dbuser.confirm.location = ctx.message.text;
+    ctx.dbuser.save();
+
+    let displayLocation = await confirmLocation(
+      ctx.dbuser.confirm.location,
+      ctx
+    );
+
+    //console.log(ctx.dbuser.location);
+
     if (displayLocation) {
       ctx.reply(
         `Is ${displayLocation} your location?`,
@@ -104,24 +112,21 @@ stepHandler.action('correct_location', async (ctx) => {
   try {
     await ctx.deleteMessage();
 
-    const user = await User.findOne({ id: ctx.from.id });
+    // saving all changes made to user
+    ctx.dbuser.location = ctx.dbuser.confirm.location;
+    ctx.dbuser.latitudeLocation = ctx.dbuser.confirm.latitudeLocation;
+    ctx.dbuser.longtitudeLocation = ctx.dbuser.confirm.longtitudeLocation;
 
-    if (!user) {
-      await User.create({
-        id: ctx.from.id,
-        location: globalLocation,
-        longtitudeLocation: longLocation,
-        latitudeLocation: latLocation,
-      });
-    } else {
-      user.location = globalLocation;
-      user.longtitudeLocation = longLocation;
-      user.latitudeLocation = latLocation;
-      await user.save();
-    }
+    await ctx.dbuser.save();
 
-    await ctx.reply('OK! Your current location is ' + globalLocation + ' now.');
-    await ctx.reply(`Latitude: ${latLocation};\nLongtitude: ${longLocation}`);
+    console.log(ctx.dbuser);
+
+    await ctx.reply(
+      'OK! Your current location is ' + ctx.dbuser.location + ' now.'
+    );
+    await ctx.reply(
+      `Latitude: ${ctx.dbuser.latitudeLocation};\nLongtitude: ${ctx.dbuser.longtitudeLocation}`
+    );
     await ctx.reply('Your id is ' + ctx.from.id);
 
     return ctx.scene.leave();
@@ -143,12 +148,15 @@ const confirmLocation = async (location, ctx) => {
   let url = encodeURI(
     `https://eu1.locationiq.com/v1/search.php?key=${process.env.location_key}&q=${location}&format=json`
   );
+
+  console.log(url);
   try {
     let res = await axios.get(url);
     let address = await res.data[0].display_name;
 
-    latLocation = await res.data[0].lat;
-    longLocation = await res.data[0].lon;
+    ctx.dbuser.confirm.latitudeLocation = await res.data[0].lat;
+    ctx.dbuser.confirm.longtitudeLocation = await res.data[0].lon;
+    await ctx.dbuser.save();
 
     return address;
   } catch (err) {
