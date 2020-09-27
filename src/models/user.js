@@ -18,7 +18,9 @@ const User = new Schema({
     type: String,
   },
   confirm: {
-    type: Object,
+    location: String,
+    latitudeLocation: String,
+    longtitudeLocation: String,
   },
 });
 

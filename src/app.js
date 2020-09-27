@@ -12,6 +12,7 @@ const Composer = require('telegraf/composer');
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const databaseUrl = process.env.MONGO_URL;
 const User = require('./models/user');
+const { db } = require('./models/user');
 
 const connect = mongoose.connect(databaseUrl, {
   useNewUrlParser: true,
@@ -117,9 +118,11 @@ stepHandler.action('correct_location', async (ctx) => {
     ctx.dbuser.latitudeLocation = ctx.dbuser.confirm.latitudeLocation;
     ctx.dbuser.longtitudeLocation = ctx.dbuser.confirm.longtitudeLocation;
 
+    ctx.dbuser.confirm = {};
+
     await ctx.dbuser.save();
 
-    console.log(ctx.dbuser);
+    //console.log(ctx.dbuser);
 
     await ctx.reply(
       'OK! Your current location is ' + ctx.dbuser.location + ' now.'
