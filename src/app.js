@@ -10,6 +10,7 @@ const cron = require('node-cron');
 const { checkWeather } = require('./utils/checkWeather');
 const { checkCommand } = require('./commands/check');
 const { helpCommand } = require('./commands/help');
+const { locationCommand } = require('./commands/location');
 const { location } = require('./scenes/location');
 
 // connection to MongoDB
@@ -56,5 +57,5 @@ stage.register(location);
 
 bot.use(session());
 bot.use(stage.middleware());
-bot.command('location', (ctx) => ctx.scene.enter('location'));
+bot.command('location', locationCommand);
 bot.launch();
