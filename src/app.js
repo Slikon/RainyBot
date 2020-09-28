@@ -61,12 +61,7 @@ bot.command('check', async (ctx) => {
   } else {
     ctx.reply(`Ваш город - ${ctx.dbuser.location}`);
 
-    const weather = await getWeather(ctx);
-    if (weather) {
-      ctx.reply(`The weather today is: ${weather}`);
-    } else {
-      ctx.reply("Sorry, can't get weather for you.");
-    }
+    getWeather(ctx);
   }
 });
 
@@ -127,10 +122,7 @@ stepHandler.action('correct_location', async (ctx) => {
     await ctx.reply(
       'OK! Your current location is ' + ctx.dbuser.location + ' now.'
     );
-    await ctx.reply(
-      `Latitude: ${ctx.dbuser.latitudeLocation};\nLongtitude: ${ctx.dbuser.longtitudeLocation}`
-    );
-    await ctx.reply('Your id is ' + ctx.from.id);
+    getWeather(ctx);
 
     return ctx.scene.leave();
   } catch (e) {
@@ -171,6 +163,7 @@ const confirmLocation = async (location, ctx) => {
 };
 
 //function gets a weather report for user's location coords
+//and replies it to user if possible (no errors)
 const getWeather = async (ctx) => {
   let url = encodeURI(
     `http://www.7timer.info/bin/civillight.php?lon=${ctx.dbuser.longtitudeLocation}&lat=${ctx.dbuser.latitudeLocation}&ac=0&unit=metric&output=json&tzshift=0`
@@ -178,12 +171,12 @@ const getWeather = async (ctx) => {
   try {
     let res = await axios.get(url);
     let fullWeather = await res.data.dataseries[0];
-    let usrWeather = fullWeather.weather;
+    let usrWeather = await fullWeather.weather;
 
-    return usrWeather;
+    ctx.reply(`Weather: ${usrWeather}`);
   } catch (error) {
     console.log(error);
-    return false;
+    ctx.reply("Sorry, can't get weather for you");
   }
 };
 
