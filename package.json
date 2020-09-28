@@ -11,6 +11,7 @@
     "axios": "^0.19.2",
     "dotenv": "^8.2.0",
     "mongoose": "^5.10.7",
+    "node-cron": "^2.0.3",
     "telegraf": "^3.38.0"
   },
   "devDependencies": {

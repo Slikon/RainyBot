@@ -12,8 +12,7 @@ const Composer = require('telegraf/composer');
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const databaseUrl = process.env.MONGO_URL;
 const User = require('./models/user');
-const { db } = require('./models/user');
-const user = require('./models/user');
+const cron = require('node-cron');
 
 const connect = mongoose.connect(databaseUrl, {
   useNewUrlParser: true,
@@ -61,8 +60,14 @@ bot.command('check', async (ctx) => {
   } else {
     ctx.reply(`Ваш город - ${ctx.dbuser.location}`);
 
-    getWeather(ctx);
+    let weather = await getWeather(ctx.dbuser);
+    ctx.reply(`Wether: ${weather}`);
   }
+});
+
+// scheduler of the weather checking event. If the weather is rainy/snowy today - the bot will warn you at specific time!
+cron.schedule('0 0 22 * * *', async () => {
+  checkWeather();
 });
 
 const stepHandler = new Composer();
@@ -122,11 +127,14 @@ stepHandler.action('correct_location', async (ctx) => {
     await ctx.reply(
       'OK! Your current location is ' + ctx.dbuser.location + ' now.'
     );
-    getWeather(ctx);
-
+    let weather = await getWeather(ctx.dbuser);
+    if (weather) {
+      ctx.reply(`Weather: ${weather}`);
+    }
     return ctx.scene.leave();
   } catch (e) {
     console.log(e);
+    ctx.reply(`Cant get weather for ${ctx.dbuser.location}, sorry`);
   }
 });
 
@@ -164,20 +172,35 @@ const confirmLocation = async (location, ctx) => {
 
 //function gets a weather report for user's location coords
 //and replies it to user if possible (no errors)
-const getWeather = async (ctx) => {
+const getWeather = async (user) => {
   let url = encodeURI(
-    `http://www.7timer.info/bin/civillight.php?lon=${ctx.dbuser.longtitudeLocation}&lat=${ctx.dbuser.latitudeLocation}&ac=0&unit=metric&output=json&tzshift=0`
+    `http://www.7timer.info/bin/civillight.php?lon=${user.longtitudeLocation}&lat=${user.latitudeLocation}&ac=0&unit=metric&output=json&tzshift=0`
   );
   try {
     let res = await axios.get(url);
     let fullWeather = await res.data.dataseries[0];
     let usrWeather = await fullWeather.weather;
 
-    ctx.reply(`Weather: ${usrWeather}`);
+    return usrWeather;
   } catch (error) {
     console.log(error);
-    ctx.reply("Sorry, can't get weather for you");
+    return false;
   }
+};
+
+const checkWeather = async () => {
+  let triggers = ['rain', 'snow', 'shower'];
+
+  const users = await User.find({});
+  users.forEach(async (user) => {
+    let weather = await getWeather(user);
+    if (triggers.some((el) => weather.includes(el))) {
+      bot.telegram.sendMessage(
+        user.id,
+        `Be careful!\tWeather in ${user.location}: ${weather} `
+      );
+    }
+  });
 };
 
 const stage = new Stage();
