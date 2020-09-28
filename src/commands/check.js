@@ -8,7 +8,7 @@ const checkCommand = async (ctx) => {
     ctx.reply(`Ваш город - ${ctx.dbuser.location}`);
 
     let weather = await getWeather(ctx.dbuser);
-    ctx.reply(`Wether: ${weather}`);
+    ctx.reply(`Weather: ${weather}`);
   }
 };
 

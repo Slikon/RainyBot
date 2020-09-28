@@ -16,9 +16,7 @@ stepHandler.action('correct_location', async (ctx) => {
 
     await ctx.dbuser.save();
 
-    await ctx.reply(
-      'OK! Your current location is ' + ctx.dbuser.location + ' now.'
-    );
+    await ctx.reply(`OK! Your current location is ${ctx.dbuser.location} now.`);
     let weather = await getWeather(ctx.dbuser);
     if (weather) {
       ctx.reply(`Weather: ${weather}`);
