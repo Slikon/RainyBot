@@ -1,27 +1,25 @@
 const dotenv = require('dotenv').config();
-
 const Telegraf = require('telegraf');
-const axios = require('axios');
 const mongoose = require('mongoose');
-
 const session = require('telegraf/session');
 const Stage = require('telegraf/stage');
-const WizardScene = require('telegraf/scenes/wizard');
-const Markup = require('telegraf/markup');
-const Composer = require('telegraf/composer');
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const databaseUrl = process.env.MONGO_URL;
 const User = require('./models/user');
 const cron = require('node-cron');
+const { checkWeather } = require('./utils/checkWeather');
+const { checkCommand } = require('./commands/check');
+const { helpCommand } = require('./commands/help');
+const { location } = require('./scenes/location');
 
+// connection to MongoDB
 const connect = mongoose.connect(databaseUrl, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
 
-// connection to MongoDB
 connect
-  .then((db) => {
+  .then(() => {
     console.log('Connected succesfully to the server!');
   })
   .catch((err) => {
@@ -29,17 +27,14 @@ connect
   });
 
 bot.use(async (ctx, next) => {
-  // ищем юзера
+  // searching for user by id
   let user = await User.findOne({ id: ctx.from.id });
-
-  // если нет - создаем
+  // if no such user - create one
   if (!user) {
     user = await User.create({
       id: ctx.from.id,
     });
   }
-
-  //console.log(user);
   ctx.dbuser = user;
   next();
 });
@@ -48,160 +43,13 @@ bot.start((ctx) => {
   ctx.reply('Bot started!\nType /help to see what I can!');
 });
 
-bot.help((ctx) => {
-  ctx.reply(`Here is a list of commands
-    /location
-    /check `);
-});
-
-bot.command('check', async (ctx) => {
-  if (!ctx.dbuser.location || typeof ctx.dbuser.location == undefined) {
-    ctx.reply('Вы не указали город');
-  } else {
-    ctx.reply(`Ваш город - ${ctx.dbuser.location}`);
-
-    let weather = await getWeather(ctx.dbuser);
-    ctx.reply(`Wether: ${weather}`);
-  }
-});
+bot.help(helpCommand);
+bot.command('check', checkCommand);
 
 // scheduler of the weather checking event. If the weather is rainy/snowy today - the bot will warn you at specific time!
-cron.schedule('0 0 22 * * *', async () => {
+cron.schedule('0 06 23 * * *', async () => {
   checkWeather();
 });
-
-const stepHandler = new Composer();
-
-const location = new WizardScene(
-  'location',
-  async (ctx) => {
-    await ctx.reply('Enter your current location');
-    return ctx.wizard.next();
-  },
-  async (ctx) => {
-    if (ctx.message.text.length < 2) {
-      ctx.reply('Enter **correct** location');
-      return;
-    }
-
-    //adding not confirmed (yet) location to 'cofirm' field
-    //to check and save (if confirmed) later to user's info in database
-    ctx.dbuser.confirm.location = ctx.message.text;
-    ctx.dbuser.save();
-
-    let displayLocation = await confirmLocation(
-      ctx.dbuser.confirm.location,
-      ctx
-    );
-
-    if (displayLocation) {
-      ctx.reply(
-        `Is ${displayLocation} your location?`,
-        Markup.inlineKeyboard([
-          Markup.callbackButton('Yes!', 'correct_location'),
-          Markup.callbackButton('No! Try again!', 'false_location'),
-        ]).extra()
-      );
-    }
-    if (!displayLocation) {
-      ctx.scene.reenter();
-    }
-    return ctx.wizard.next();
-  },
-  stepHandler
-);
-
-stepHandler.action('correct_location', async (ctx) => {
-  try {
-    await ctx.deleteMessage();
-
-    // saving all changes made to user's data in DB
-    ctx.dbuser.location = ctx.dbuser.confirm.location;
-    ctx.dbuser.latitudeLocation = ctx.dbuser.confirm.latitudeLocation;
-    ctx.dbuser.longtitudeLocation = ctx.dbuser.confirm.longtitudeLocation;
-
-    ctx.dbuser.confirm = {};
-
-    await ctx.dbuser.save();
-
-    await ctx.reply(
-      'OK! Your current location is ' + ctx.dbuser.location + ' now.'
-    );
-    let weather = await getWeather(ctx.dbuser);
-    if (weather) {
-      ctx.reply(`Weather: ${weather}`);
-    }
-    return ctx.scene.leave();
-  } catch (e) {
-    console.log(e);
-    ctx.reply(`Cant get weather for ${ctx.dbuser.location}, sorry`);
-  }
-});
-
-stepHandler.action('false_location', async (ctx) => {
-  await ctx.deleteMessage();
-  await ctx.reply('Lets try once again');
-  return ctx.scene.reenter();
-});
-
-stepHandler.use((ctx) => ctx.replyWithMarkdown('Make your choice, please'));
-
-//confirmation of current user location
-const confirmLocation = async (location, ctx) => {
-  let url = encodeURI(
-    `https://eu1.locationiq.com/v1/search.php?key=${process.env.location_key}&q=${location}&format=json`
-  );
-
-  console.log('LOCATION \t' + url);
-  try {
-    let res = await axios.get(url);
-    let address = await res.data[0].display_name;
-
-    ctx.dbuser.confirm.latitudeLocation = await res.data[0].lat;
-    ctx.dbuser.confirm.longtitudeLocation = await res.data[0].lon;
-    await ctx.dbuser.save();
-
-    return address;
-  } catch (err) {
-    console.log(err.response.data);
-    //await ctx.reply('deleting prev (incorrect) message');
-    await ctx.reply('Your location is not found. Wanna try again?');
-    return false;
-  }
-};
-
-//function gets a weather report for user's location coords
-//and replies it to user if possible (no errors)
-const getWeather = async (user) => {
-  let url = encodeURI(
-    `http://www.7timer.info/bin/civillight.php?lon=${user.longtitudeLocation}&lat=${user.latitudeLocation}&ac=0&unit=metric&output=json&tzshift=0`
-  );
-  try {
-    let res = await axios.get(url);
-    let fullWeather = await res.data.dataseries[0];
-    let usrWeather = await fullWeather.weather;
-
-    return usrWeather;
-  } catch (error) {
-    console.log(error);
-    return false;
-  }
-};
-
-const checkWeather = async () => {
-  let triggers = ['rain', 'snow', 'shower'];
-
-  const users = await User.find({});
-  users.forEach(async (user) => {
-    let weather = await getWeather(user);
-    if (triggers.some((el) => weather.includes(el))) {
-      bot.telegram.sendMessage(
-        user.id,
-        `Be careful!\tWeather in ${user.location}: ${weather} `
-      );
-    }
-  });
-};
 
 const stage = new Stage();
 stage.register(location);
