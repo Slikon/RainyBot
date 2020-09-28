@@ -173,7 +173,6 @@ const confirmLocation = async (location, ctx) => {
 //function gets a weather report for user's location coords
 const getWeather = async (ctx) => {
   let url = encodeURI(
-    //`http://api.openweathermap.org/data/2.5/weather?lat=${ctx.dbuser.latitudeLocation}&lon=${ctx.dbuser.longtitudeLocation}&appid=${process.env.weather_key}`
     `http://www.7timer.info/bin/civillight.php?lon=${ctx.dbuser.longtitudeLocation}&lat=${ctx.dbuser.latitudeLocation}&ac=0&unit=metric&output=json&tzshift=0`
   );
   try {
