@@ -13,6 +13,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN);
 const databaseUrl = process.env.MONGO_URL;
 const User = require('./models/user');
 const { db } = require('./models/user');
+const user = require('./models/user');
 
 const connect = mongoose.connect(databaseUrl, {
   useNewUrlParser: true,
@@ -44,10 +45,6 @@ bot.use(async (ctx, next) => {
   next();
 });
 
-// let globalLocation; //location typed in by user and used as a 'display location for him'
-// let longLocation; //longtitude of user' location
-// let latLocation; //latitude of user' location   ** long and lat are used for weather API
-
 bot.start((ctx) => {
   ctx.reply('Bot started!\nType /help to see what I can!');
 });
@@ -58,11 +55,18 @@ bot.help((ctx) => {
     /check `);
 });
 
-bot.command('check', (ctx) => {
+bot.command('check', async (ctx) => {
   if (!ctx.dbuser.location || typeof ctx.dbuser.location == undefined) {
     ctx.reply('Вы не указали город');
   } else {
     ctx.reply(`Ваш город - ${ctx.dbuser.location}`);
+
+    const weather = await getWeather(ctx);
+    if (weather) {
+      ctx.reply(`The weather today is: ${weather}`);
+    } else {
+      ctx.reply("Sorry, can't get weather for you.");
+    }
   }
 });
 
@@ -79,9 +83,9 @@ const location = new WizardScene(
       ctx.reply('Enter **correct** location');
       return;
     }
-    //ctx.dbuser.location = ctx.message.text;
 
     //adding not confirmed (yet) location to 'cofirm' field
+    //to check and save (if confirmed) later to user's info in database
     ctx.dbuser.confirm.location = ctx.message.text;
     ctx.dbuser.save();
 
@@ -89,8 +93,6 @@ const location = new WizardScene(
       ctx.dbuser.confirm.location,
       ctx
     );
-
-    //console.log(ctx.dbuser.location);
 
     if (displayLocation) {
       ctx.reply(
@@ -113,7 +115,7 @@ stepHandler.action('correct_location', async (ctx) => {
   try {
     await ctx.deleteMessage();
 
-    // saving all changes made to user
+    // saving all changes made to user's data in DB
     ctx.dbuser.location = ctx.dbuser.confirm.location;
     ctx.dbuser.latitudeLocation = ctx.dbuser.confirm.latitudeLocation;
     ctx.dbuser.longtitudeLocation = ctx.dbuser.confirm.longtitudeLocation;
@@ -121,8 +123,6 @@ stepHandler.action('correct_location', async (ctx) => {
     ctx.dbuser.confirm = {};
 
     await ctx.dbuser.save();
-
-    //console.log(ctx.dbuser);
 
     await ctx.reply(
       'OK! Your current location is ' + ctx.dbuser.location + ' now.'
@@ -152,7 +152,7 @@ const confirmLocation = async (location, ctx) => {
     `https://eu1.locationiq.com/v1/search.php?key=${process.env.location_key}&q=${location}&format=json`
   );
 
-  console.log(url);
+  console.log('LOCATION \t' + url);
   try {
     let res = await axios.get(url);
     let address = await res.data[0].display_name;
@@ -166,6 +166,24 @@ const confirmLocation = async (location, ctx) => {
     console.log(err.response.data);
     //await ctx.reply('deleting prev (incorrect) message');
     await ctx.reply('Your location is not found. Wanna try again?');
+    return false;
+  }
+};
+
+//function gets a weather report for user's location coords
+const getWeather = async (ctx) => {
+  let url = encodeURI(
+    //`http://api.openweathermap.org/data/2.5/weather?lat=${ctx.dbuser.latitudeLocation}&lon=${ctx.dbuser.longtitudeLocation}&appid=${process.env.weather_key}`
+    `http://www.7timer.info/bin/civillight.php?lon=${ctx.dbuser.longtitudeLocation}&lat=${ctx.dbuser.latitudeLocation}&ac=0&unit=metric&output=json&tzshift=0`
+  );
+  try {
+    let res = await axios.get(url);
+    let fullWeather = await res.data.dataseries[0];
+    let usrWeather = fullWeather.weather;
+
+    return usrWeather;
+  } catch (error) {
+    console.log(error);
     return false;
   }
 };
