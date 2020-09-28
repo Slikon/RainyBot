@@ -46,6 +46,7 @@ bot.start((ctx) => {
 
 bot.help(helpCommand);
 bot.command('check', checkCommand);
+bot.command('location', locationCommand);
 
 // scheduler of the weather checking event. If the weather is rainy/snowy today - the bot will warn you at specific time!
 cron.schedule('0 06 23 * * *', async () => {
@@ -57,5 +58,4 @@ stage.register(location);
 
 bot.use(session());
 bot.use(stage.middleware());
-bot.command('location', locationCommand);
 bot.launch();
