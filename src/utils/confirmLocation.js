@@ -18,7 +18,6 @@ const confirmLocation = async (location, ctx) => {
     return address;
   } catch (err) {
     console.log(err.response.data);
-    //await ctx.reply('deleting prev (incorrect) message');
     await ctx.reply('Your location is not found. Wanna try again?');
     return false;
   }
