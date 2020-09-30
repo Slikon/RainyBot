@@ -1,17 +1,17 @@
 const dotenv = require('dotenv').config();
-const Telegraf = require('telegraf');
+const { Composer } = require('micro-bot');
 const mongoose = require('mongoose');
 const session = require('telegraf/session');
 const Stage = require('telegraf/stage');
-const bot = new Telegraf(process.env.BOT_TOKEN);
+const bot = new Composer();
 const databaseUrl = process.env.MONGO_URL;
-const User = require('./models/user');
+const User = require('./src/models/user');
 const cron = require('node-cron');
-const { checkWeather } = require('./utils/checkWeather');
-const { checkCommand } = require('./commands/check');
-const { helpCommand } = require('./commands/help');
-const { locationCommand } = require('./commands/location');
-const { location } = require('./scenes/location');
+const { checkWeather } = require('./src/utils/checkWeather');
+const { checkCommand } = require('./src/commands/check');
+const { helpCommand } = require('./src/commands/help');
+const { locationCommand } = require('./src/commands/location');
+const { location } = require('./src/scenes/location');
 
 // connection to MongoDB
 const connect = mongoose.connect(databaseUrl, {
@@ -49,7 +49,7 @@ bot.command('check', checkCommand);
 
 // scheduler of the weather checking event. If the weather is rainy/snowy today - the bot will warn you at specific time!
 // time and date in 'schedule' method is temporary and can change during development process.
-cron.schedule('*/10 * * * * *', async () => {
+cron.schedule('0 0 6 * * *', async () => {
   checkWeather();
 });
 
@@ -59,4 +59,7 @@ stage.register(location);
 bot.use(session());
 bot.use(stage.middleware());
 bot.command('location', locationCommand);
-bot.launch();
+module.exports = bot;
+
+//morning-garden-05930
+//https://morning-garden-05930.herokuapp.com/
