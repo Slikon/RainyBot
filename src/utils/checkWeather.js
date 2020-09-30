@@ -20,4 +20,4 @@ const checkWeather = async () => {
   });
 };
 
-module.exports = { checkWeather };
+module.exports = { checkWeather, bot };

@@ -5,13 +5,13 @@ const session = require('telegraf/session');
 const Stage = require('telegraf/stage');
 const bot = new Composer();
 const databaseUrl = process.env.MONGO_URL;
-const User = require('./src/models/user');
+const User = require('./models/user');
 const cron = require('node-cron');
-const { checkWeather } = require('./src/utils/checkWeather');
-const { checkCommand } = require('./src/commands/check');
-const { helpCommand } = require('./src/commands/help');
-const { locationCommand } = require('./src/commands/location');
-const { location } = require('./src/scenes/location');
+const { checkWeather } = require('./utils/checkWeather');
+const { checkCommand } = require('./commands/check');
+const { helpCommand } = require('./commands/help');
+const { locationCommand } = require('./commands/location');
+const { location } = require('./scenes/location');
 
 // connection to MongoDB
 const connect = mongoose.connect(databaseUrl, {
