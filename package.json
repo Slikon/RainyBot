@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "micro-bot"
+    "start": ""
   },
   "keywords": [],
   "author": "",
@@ -12,7 +12,6 @@
   "dependencies": {
     "axios": "^0.19.2",
     "dotenv": "^8.2.0",
-    "micro-bot": "^2.5.3",
     "mongoose": "^5.10.7",
     "node-cron": "^2.0.3",
     "telegraf": "^3.38.0"
