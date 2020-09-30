@@ -1,9 +1,9 @@
 const dotenv = require('dotenv').config();
-const { Composer } = require('micro-bot');
+const Telegraf = require('telegraf');
 const mongoose = require('mongoose');
 const session = require('telegraf/session');
 const Stage = require('telegraf/stage');
-const bot = new Composer();
+const bot = new Telegraf(process.env.BOT_TOKEN);
 const databaseUrl = process.env.MONGO_URL;
 const User = require('./models/user');
 const cron = require('node-cron');
@@ -49,7 +49,7 @@ bot.command('check', checkCommand);
 
 // scheduler of the weather checking event. If the weather is rainy/snowy today - the bot will warn you at specific time!
 // time and date in 'schedule' method is temporary and can change during development process.
-cron.schedule('0 0 6 * * *', async () => {
+cron.schedule('*/10 * * * * *', async () => {
   checkWeather();
 });
 
@@ -59,7 +59,7 @@ stage.register(location);
 bot.use(session());
 bot.use(stage.middleware());
 bot.command('location', locationCommand);
-module.exports = bot;
+bot.launch();
 
 //morning-garden-05930
 //https://morning-garden-05930.herokuapp.com/

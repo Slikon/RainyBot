@@ -1,8 +1,8 @@
 const User = require('../models/user');
 const { getWeather } = require('./getWeather');
-const { Composer } = require('micro-bot');
+const Telegraf = require('telegraf');
 const dotenv = require('dotenv').config();
-const bot = new Composer();
+const bot = new Telegraf(process.env.BOT_TOKEN);
 
 // function checks if weather today is rainy/snowy and reports directly to user if true
 const checkWeather = async () => {
@@ -20,4 +20,4 @@ const checkWeather = async () => {
   });
 };
 
-module.exports = { checkWeather, bot };
+module.exports = { checkWeather };
