@@ -7,16 +7,16 @@ const { stepHandler } = require('../utils/stepHandler');
 const location = new WizardScene(
   'location',
   async (ctx) => {
-    await ctx.reply('Enter your current location');
+    await ctx.reply('Enter your current location:');
     return ctx.wizard.next();
   },
   async (ctx) => {
     if (ctx.message.text.length < 2) {
-      ctx.reply('Enter **correct** location');
+      ctx.replyWithMarkdown(`Enter *correct* location:`);
       return;
     }
 
-    //adding not confirmed (yet) location to 'cofirm' field
+    //adding not confirmed yet location to 'cofirm' field
     //to check and save (if confirmed) later to user's info in database
     ctx.dbuser.confirm.location = ctx.message.text;
     ctx.dbuser.save();
