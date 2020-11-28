@@ -16,12 +16,10 @@ stepHandler.action('correct_location', async (ctx) => {
 
     await ctx.dbuser.save();
 
-    await ctx.reply(
-      `OK! Your current location is ${ctx.dbuser.location} now ✅`
-    );
+    await ctx.reply(`OK! Ваша текущая локация - ${ctx.dbuser.location} ✅`);
     let weather = await getWeather(ctx.dbuser);
     if (weather) {
-      ctx.reply(`Weather: ${weather}`);
+      ctx.reply(`Погода сегодня: ${weather}`);
     }
     return ctx.scene.leave();
   } catch (e) {
@@ -34,7 +32,9 @@ stepHandler.action('correct_location', async (ctx) => {
 
 stepHandler.action('false_location', async (ctx) => {
   await ctx.deleteMessage();
-  await ctx.reply('Попробуем еще раз!');
+  await ctx.reply(
+    'Попробуйте указать более детальную информацию (укажите область, район и т.д.).'
+  );
   return ctx.scene.reenter();
 });
 

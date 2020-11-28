@@ -28,7 +28,7 @@ const location = new WizardScene(
 
     if (displayLocation) {
       ctx.reply(
-        `Ваша локация - ${displayLocation}?`,
+        `Ваша локация: ${displayLocation}?`,
         Markup.inlineKeyboard([
           Markup.callbackButton('Да!', 'correct_location'),
           Markup.callbackButton('Нет! Попробуем еще!', 'false_location'),
