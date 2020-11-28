@@ -11,7 +11,7 @@ const location = new WizardScene(
     return ctx.wizard.next();
   },
   async (ctx) => {
-    if (ctx.message.text.length < 2) {
+    if (ctx.message.text.length < 2 || !ctx.message.text) {
       ctx.replyWithMarkdown(`Enter *correct* location:`);
       return;
     }

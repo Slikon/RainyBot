@@ -42,7 +42,7 @@ bot.use(async (ctx, next) => {
 
 bot.start((ctx) => {
   ctx.reply(
-    'Welcome! Ready to set up your rain reminder?🌧\nType /help to get started!'
+    'Welcome! Ready to set up your rain reminder?🌧\nPress /help to get started!'
   );
 });
 
