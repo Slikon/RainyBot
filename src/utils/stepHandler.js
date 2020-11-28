@@ -16,7 +16,9 @@ stepHandler.action('correct_location', async (ctx) => {
 
     await ctx.dbuser.save();
 
-    await ctx.reply(`OK! Your current location is ${ctx.dbuser.location} now.`);
+    await ctx.reply(
+      `OK! Your current location is ${ctx.dbuser.location} now✅`
+    );
     let weather = await getWeather(ctx.dbuser);
     if (weather) {
       ctx.reply(`Weather: ${weather}`);
@@ -24,16 +26,16 @@ stepHandler.action('correct_location', async (ctx) => {
     return ctx.scene.leave();
   } catch (e) {
     console.log(e);
-    ctx.reply(`Cant get weather for ${ctx.dbuser.location}, sorry`);
+    ctx.reply(`Can't get weather for ${ctx.dbuser.location}, sorry😞`);
   }
 });
 
 stepHandler.action('false_location', async (ctx) => {
   await ctx.deleteMessage();
-  await ctx.reply('Lets try once again');
+  await ctx.reply("Let's try once again!");
   return ctx.scene.reenter();
 });
 
-stepHandler.use((ctx) => ctx.replyWithMarkdown('Make your choice, please'));
+stepHandler.use((ctx) => ctx.replyWithMarkdown('Make your choice, please!'));
 
 module.exports = { stepHandler };
