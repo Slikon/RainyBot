@@ -7,12 +7,12 @@ const { stepHandler } = require('../utils/stepHandler');
 const location = new WizardScene(
   'location',
   async (ctx) => {
-    await ctx.reply('Enter your current location:');
+    await ctx.reply('Введите название вашего населенного пункта:');
     return ctx.wizard.next();
   },
   async (ctx) => {
     if (ctx.message.text.length < 2 || !ctx.message.text) {
-      ctx.replyWithMarkdown(`Enter *correct* location:`);
+      ctx.replyWithMarkdown(`Введите *корректную* локацию:`);
       return;
     }
 
@@ -28,10 +28,10 @@ const location = new WizardScene(
 
     if (displayLocation) {
       ctx.reply(
-        `Is ${displayLocation} your location?`,
+        `Ваша локация - ${displayLocation}?`,
         Markup.inlineKeyboard([
-          Markup.callbackButton('Yes!', 'correct_location'),
-          Markup.callbackButton('No! Try again!', 'false_location'),
+          Markup.callbackButton('Да!', 'correct_location'),
+          Markup.callbackButton('Нет! Попробуем еще!', 'false_location'),
         ]).extra()
       );
     }

@@ -26,16 +26,20 @@ stepHandler.action('correct_location', async (ctx) => {
     return ctx.scene.leave();
   } catch (e) {
     console.log(e);
-    ctx.reply(`Can't get weather for ${ctx.dbuser.location}, sorry😞`);
+    ctx.reply(
+      `Не могу узнать погоду в ${ctx.dbuser.location}, прошу прощения 😞`
+    );
   }
 });
 
 stepHandler.action('false_location', async (ctx) => {
   await ctx.deleteMessage();
-  await ctx.reply("Let's try once again!");
+  await ctx.reply('Попробуем еще раз!');
   return ctx.scene.reenter();
 });
 
-stepHandler.use((ctx) => ctx.replyWithMarkdown('Make your choice, please!'));
+stepHandler.use((ctx) =>
+  ctx.replyWithMarkdown('Сделайте ваш выбор, пожалуйста!')
+);
 
 module.exports = { stepHandler };

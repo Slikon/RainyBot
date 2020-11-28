@@ -20,7 +20,7 @@ const checkWeather = async () => {
       if (triggers.some((el) => weather.includes(el))) {
         bot.telegram.sendMessage(
           user.id,
-          `Attention!\nWeather in ${user.location}: ${weather}☔️`
+          `Внимание, осадки!\nПогода в ${user.location}: ${weather}☔️`
         );
         await sleep(100);
       }

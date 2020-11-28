@@ -4,13 +4,13 @@ const { getWeather } = require('../utils/getWeather');
 const checkCommand = async (ctx) => {
   if (!ctx.dbuser.location || typeof ctx.dbuser.location == undefined) {
     ctx.reply(
-      'You did not mention your location. Type /location to get started!'
+      'Вы не указали локацию. Нажмите /location чтобы начать использование!'
     );
   } else {
-    ctx.reply(`Your location - ${ctx.dbuser.location} 🏡`);
+    ctx.reply(`Ваша локация - ${ctx.dbuser.location} 🏡`);
 
     let weather = await getWeather(ctx.dbuser);
-    ctx.reply(`Weather: ${weather}.`);
+    ctx.reply(`Погода сегодня: ${weather}.`);
   }
 };
 
