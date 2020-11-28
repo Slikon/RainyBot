@@ -1,7 +1,7 @@
 const helpCommand = (ctx) => {
   ctx.reply(
-    `Hi! This bot is created to warn you about possible weather precipitations in your region. I usually forget to check out the weather and grab an umbrella, that's why managed to create this bot.\n\nEnter your location and that's all! If precipitations are expected today, I would notice you automatically at 03:00 (UTC). All notifications are sent automatically and you don't need to configure me. Enjoy!
-  \n\nHere is a list of commands:\n/location - save your current location so I would know where you are :)\n/check - check your last saved location and recieve your weather forecast for today!`
+    `Hi! This bot is created to warn you about possible weather precipitations in your region. \nAll you need is to push /location command, fill your current location (e.g. city or village - don't worry, even small villages are supported), and forget about it! Notification at 03:00 (UTC) is sent, but only if precipitations in your town are expected - no other annoying spam.
+  \n\nHere is a list of commands:\n/location - save your current location so I would know where you are :)\n/check - check your last saved location and recieve your short weather forecast for today!`
   );
 };
 
