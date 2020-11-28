@@ -5,7 +5,9 @@ const checkCommand = async (ctx) => {
   if (!ctx.dbuser.location || typeof ctx.dbuser.location == undefined) {
     ctx.reply('You did not mention your location.');
   } else {
-    ctx.reply(`Your location - ${ctx.dbuser.location}`);
+    ctx.reply(
+      `Your location - ${ctx.dbuser.location}. Type /location to get started!`
+    );
 
     let weather = await getWeather(ctx.dbuser);
     ctx.reply(`Weather: ${weather}`);

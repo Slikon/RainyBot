@@ -51,7 +51,7 @@ bot.command('check', checkCommand);
 
 // scheduler of the weather checking event. If the weather is rainy/snowy today - the bot will warn you at specific time!
 // time and date in 'schedule' method is temporary and can change during development process.
-cron.schedule('*/5 0 0 * * *', async () => {
+cron.schedule('*/5 * * * * *', async () => {
   checkWeather();
 });
 
