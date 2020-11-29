@@ -24,7 +24,7 @@ const checkWeather = async () => {
       bot.telegram.sendMessage(
         user.id,
         `Внимание, осадки!☔️\n${printWeather(fullWeather)}`,
-        'Markdown'
+        { parse_mode: 'Markdown' }
       );
       await sleep(100);
     }
