@@ -33,7 +33,7 @@ stepHandler.action('correct_location', async (ctx) => {
 stepHandler.action('false_location', async (ctx) => {
   await ctx.deleteMessage();
   await ctx.reply(
-    'Попробуйте указать более детальную информацию (укажите область, район и т.д.).'
+    'Попробуйте указать более детальную информацию (область, район и т.д.).'
   );
   return ctx.scene.reenter();
 });
