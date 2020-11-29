@@ -1,5 +1,5 @@
 const { getWeather } = require('../utils/getWeather');
-const printWeather = require('../utils/printWeather');
+const { printWeather } = require('../utils/printWeather');
 
 //command checks current user' location and its weather
 const checkCommand = async (ctx) => {
