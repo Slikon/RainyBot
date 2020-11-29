@@ -1,6 +1,6 @@
 const Composer = require('telegraf/composer');
 const { getWeather } = require('./getWeather');
-const printWeather = require('./printWeather');
+const { printWeather } = require('./printWeather');
 
 const stepHandler = new Composer();
 
