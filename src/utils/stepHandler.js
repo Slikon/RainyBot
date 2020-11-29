@@ -1,5 +1,6 @@
 const Composer = require('telegraf/composer');
 const { getWeather } = require('./getWeather');
+const printWeather = require('./printWeather');
 
 const stepHandler = new Composer();
 
@@ -17,9 +18,9 @@ stepHandler.action('correct_location', async (ctx) => {
     await ctx.dbuser.save();
 
     await ctx.reply(`OK! Ваша текущая локация - ${ctx.dbuser.location} ✅`);
-    let weather = await getWeather(ctx.dbuser);
+    const weather = await getWeather(ctx.dbuser);
     if (weather) {
-      ctx.reply(`Погода сегодня: ${weather}`);
+      ctx.replyWithMarkdown(printWeather(weather));
     }
     return ctx.scene.leave();
   } catch (e) {

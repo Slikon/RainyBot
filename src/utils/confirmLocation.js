@@ -6,7 +6,6 @@ const confirmLocation = async (location, ctx) => {
     `https://eu1.locationiq.com/v1/search.php?key=${process.env.LOCATION_KEY}&q=${location}&format=json`
   );
 
-  //console.log('LOCATION \t' + url);
   try {
     let res = await axios.get(url);
     let address = await res.data[0].display_name;

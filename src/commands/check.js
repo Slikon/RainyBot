@@ -12,7 +12,7 @@ const checkCommand = async (ctx) => {
 
     const fullWeather = await getWeather(ctx.dbuser);
     // const description = fullWeather.weather[0].description;
-    ctx.reply(printWeather(fullWeather));
+    ctx.replyWithMarkdown(printWeather(fullWeather));
   }
 };
 
