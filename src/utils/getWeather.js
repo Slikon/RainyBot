@@ -7,12 +7,9 @@ const getWeather = async (user) => {
   );
   try {
     const res = await axios.get(url);
-    console.log(url);
-    // let fullWeather = await res.data.daily[0].weather[0];
+    // console.log(url);
     const fullWeather = await res.data.daily[0];
-    // let usrWeather = await fullWeather.description;
 
-    // console.log(usrWeather);
     return fullWeather;
   } catch (error) {
     console.log(error);
