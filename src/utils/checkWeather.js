@@ -14,7 +14,7 @@ function sleep(ms) {
 const checkWeather = async () => {
   const triggers = ['rain', 'snow', 'shower', 'drizzl'];
 
-  const user = await User.findOne({ id: '5fc2a3552c6581001727b621' });
+  const user = await User.findOne({ _id: '5fc2a3552c6581001727b621' });
   // for (const user of users) {
   try {
     const fullWeather = await getWeather(user);
