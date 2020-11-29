@@ -14,26 +14,26 @@ function sleep(ms) {
 const checkWeather = async () => {
   const triggers = ['rain', 'snow', 'shower', 'drizzl'];
 
-  const users = await User.findById({ id: '5fc2a3552c6581001727b621' });
-  for (const user of users) {
-    try {
-      const fullWeather = await getWeather(user);
-      const description = fullWeather.weather[0].description;
+  const user = await User.findOne({ id: '5fc2a3552c6581001727b621' });
+  // for (const user of users) {
+  try {
+    const fullWeather = await getWeather(user);
+    const description = fullWeather.weather[0].description;
 
-      if (triggers.some((el) => description.includes(el))) {
-        bot.telegram.sendMessage(
-          user.id,
-          `Внимание, осадки!☔️\n${printWeather(fullWeather)}`
-        );
-        await sleep(100);
-      }
-    } catch (err) {
-      if (err.response && err.response.error_code === 403) {
-        await User.findByIdAndDelete(user._id);
-      }
-      console.log(err.message);
+    if (triggers.some((el) => description.includes(el))) {
+      bot.telegram.sendMessage(
+        user.id,
+        `Внимание, осадки!☔️\n${printWeather(fullWeather)}`
+      );
+      await sleep(100);
     }
+  } catch (err) {
+    if (err.response && err.response.error_code === 403) {
+      await User.findByIdAndDelete(user._id);
+    }
+    console.log(err.message);
   }
+  // }
 };
 
 module.exports = { checkWeather };
