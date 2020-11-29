@@ -1,4 +1,5 @@
 const { getWeather } = require('../utils/getWeather');
+const printWeather = require('../utils/printWeather');
 
 //command checks current user' location and its weather
 const checkCommand = async (ctx) => {
@@ -9,8 +10,9 @@ const checkCommand = async (ctx) => {
   } else {
     ctx.reply(`Ваша локация - ${ctx.dbuser.location} 🏡`);
 
-    let weather = await getWeather(ctx.dbuser);
-    ctx.reply(`Погода сегодня: ${weather}.`);
+    const fullWeather = await getWeather(ctx.dbuser);
+    // const description = fullWeather.weather[0].description;
+    ctx.reply(printWeather(fullWeather));
   }
 };
 

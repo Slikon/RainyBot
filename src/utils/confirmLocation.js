@@ -18,7 +18,7 @@ const confirmLocation = async (location, ctx) => {
     return address;
   } catch (err) {
     console.log(err.response.data);
-    await ctx.reply('Ваш населенный пункт не найдет. Попробуем еще раз?');
+    await ctx.reply('Ваш населенный пункт не найден. Попробуем еще раз?');
     return false;
   }
 };
