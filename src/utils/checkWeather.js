@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const { getWeather } = require('./getWeather');
 const Telegraf = require('telegraf');
+const { printWeather } = require('./printWeather');
 const dotenv = require('dotenv').config();
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
@@ -13,7 +14,7 @@ function sleep(ms) {
 const checkWeather = async () => {
   const triggers = ['rain', 'snow', 'shower', 'drizzl'];
 
-  const users = await User.find({});
+  const users = await User.findById({ id: '5fc2a3552c6581001727b621' });
   for (const user of users) {
     try {
       const fullWeather = await getWeather(user);
@@ -22,7 +23,7 @@ const checkWeather = async () => {
       if (triggers.some((el) => description.includes(el))) {
         bot.telegram.sendMessage(
           user.id,
-          `Внимание, осадки!☔️\nПогода в ${user.location}: ${description}☔️`
+          `Внимание, осадки!☔️\n${printWeather(fullWeather)}`
         );
         await sleep(100);
       }
