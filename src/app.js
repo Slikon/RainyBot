@@ -42,9 +42,8 @@ bot.use(async (ctx, next) => {
 });
 
 bot.start((ctx) => {
-	ctx.replyWithMarkdown(
-		`Добро пожаловать! Этот бот создан, чтобы помочь вам узнать о возможных осадках в *вашем городе* первыми и не забыть захватить зонт с утра! 🌧
-Нажмите /help для начала использования!`
+	ctx.reply(
+		`Welcome! This bot is designed to help you be the first to know about possible rainfall in *your city* and remember to bring an umbrella in the morning! 🌧\nPress /help to get started!`, {parse_mode: "HTML"}
 	);
 });
 
@@ -65,5 +64,3 @@ bot.use(stage.middleware());
 bot.command("location", locationCommand);
 bot.launch();
 
-//morning-garden-05930
-//https://morning-garden-05930.herokuapp.com/
